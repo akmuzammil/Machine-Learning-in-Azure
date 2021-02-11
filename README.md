@@ -1,31 +1,28 @@
-# Machine-Learning-Engineer-with-Microsoft-Azure
+# Machine Learning Engineer in Microsoft Azure
 
+Machine learning is a critical business operation for many organizations. We learn how to configure machine learning pipelines in Azure, identify use cases for Automated Machine Learning, and use the Azure ML SDK to design, create, and manage machine learning pipelines in Azure.
 
-## - PART 1
+## - Project 1
 
-Welcome to Machine Learning Engineer with Microsoft Azure
+#### Optimizing an ML Pipeline in Azure
+In this project, we create and optimize an ML pipeline. We are provided with a custom-coded model—a standard scikit-learn Logistic Regression. First part is to optimize the hyperparameters using HyperDrive. Second part of the project is to use AutoML to build and optimize a model on the same dataset, so that we can compare the results of the two methods.
 
-Welcome to Udacity! We're excited to share more about your nanodegree and start this journey with you! In this course, you will learn more about the pre-requisites, structure of the program, and getting started!
+Project: [Optimizing an ML Pipeline in Azure](https://github.com/akmuzammil/Machine-Learning-in-Azure/tree/master/Project1-Optimizing-an-ML-Pipeline)
 
-## - PART 2
-Using Azure Machine Learning
+## - Project 2
 
-Machine learning is a critical business operation for many organizations. Learn how to configure machine learning pipelines in Azure, identify use cases for Automated Machine Learning, and use the Azure ML SDK to design, create, and manage machine learning pipelines in Azure.
+#### Machine Learning Operations
 
-Project: Optimizing an ML Pipeline in Azure [link](https://github.com/marwan1023/Machine-Learning-Engineer-with-Microsoft-Azure/tree/master/Project%231%20Optimizing-an-ML-Pipelin)
+This project covers a lot of the key concepts of operationalizing Machine Learning, from selecting the appropriate targets for deploying models, to enabling Application Insights, identifying problems in logs, and harnessing the power of Azure’s Pipelines. All these concepts are part of core DevOps pillars that will allow you to demonstrate solid skills for shipping machine learning models into production.
 
-## - PART 3
+In this project, we perform Automated ML on bank marketing dataset, deploy the best model that resulted from Automated ML as a RESTful webservice, consume endpoints to interact with the deployed model in Azure Machine Learning Studio and performe pipeline automation for improved machine learning operations.
 
-Machine Learning Operations
+Project: [Operationalizing Machine Learning in Microsoft Azure](https://github.com/akmuzammil/Machine-Learning-in-Azure/tree/master/Project2-Operationalizing-ML-in-Azure/starter_files)
 
-This course covers a lot of the key concepts of operationalizing Machine Learning, from selecting the appropriate targets for deploying models, to enabling Application Insights, identifying problems in logs, and harnessing the power of Azure’s Pipelines. All these concepts are part of core DevOps pillars that will allow you to demonstrate solid skills for shipping machine learning models into production.
-
-Project: Project: Operationalizing Machine Learning [link](https://github.com/marwan1023/Machine-Learning-Engineer-with-Microsoft-Azure/tree/master/Project%232%20Operationalizing%20Machine%20Learning)
-
-## - PART 4 
+## - Capstone Project 
 
 Capstone - Azure Machine Learning Engineer
 
-This capstone project gives you the opportunity to use the Azure Machine learning knowledge you have obtained from this Nanodegree to solve the problem of your interest.
+This capstone project gives the opportunity to use the Azure Machine learning knowledge that we have obtained so far to solve the problem of our interest.
 
-Project: Capstone Project - Azure Machine Learning Engineer[link](https://github.com/marwan1023/Machine-Learning-Engineer-with-Microsoft-Azure/tree/master/Capstone%20-%20Project%233%20Azure%20Machine%20Learning%20Engineer)
+Project: [Capstone Project - Azure Machine Learning Engineer](https://github.com/akmuzammil/Machine-Learning-in-Azure/tree/master/Project3-Capstone-Azure%20Machine%20Learning%20Engineer/ML_Capstone-master/starter_file)
