@@ -1,5 +1,4 @@
-### Machine-Learning-Engineer-with-Microsoft-Azure
-By Marwan Saeed Alsharabbi
+### Machine Learning using Microsoft Azure
 
 # Capstone Project
 
@@ -29,27 +28,25 @@ Table of Contents
   * [Future Improvements](#future-improvements)
   * [Screen Recording](#screen-recording)
   
-  
- In this project we create two models: one using
+This capstone project gives the opportunity to use the Azure Machine Learning knowledge that we have obtained so far to solve the problem of our interest. Our problem of interest is based on medical data to predict heart failure of given subject. This project has two parts - one to find best ML model and other to deploy the best model. Finding best ML model is further done in two ways: 
  
-  #### 1- Automated ML
-  #### 2- Hyperparameters are tuned using HyperDrive.
+  #### 1- Automated ML (AutoML)
+  #### 2- Hyperparameters tuning using HyperDrive.
   
- We then compare the performance of both the  models and deploy the best performing model. Once the model is deployed successfully we test the endpoint. 
- This project is a part of the Machine Learning Engineer with Microsoft Azure ND-Udacity. 
+The above methods generate output ML model each and then both models are compared to find the best model with highest accuracy. Then we deploy the best performing model. We then test the endpoint of the deployed ML model.
   
   
 ## Overview
-This is the Capstone Project of the Udacity Microsoft MLE Nanodegree. This project leverages Azure Machine Learning to help in the Heart Failure Prediction,
-ardiovascular diseases (CVDs) are the number 1 cause of death globally, taking an estimated 17.9 million lives each year, which accounts for 31% of all deaths worlwide.
-Heart failure is a common event caused by CVDs and this dataset contains 12 features that can be used to predict mortality by heart failure.
-Most cardiovascular diseases can be prevented by addressing behavioural risk factors such as tobacco use, unhealthy diet and obesity, physical inactivity and harmful use of alcohol using population-wide strategies.
+This capstone project leverages Azure Machine Learning to help predict Heart Failure based on the data from University of California, Irvine Machine Learning Repository.
+Cardiovascular diseases (CVDs) are the number one cause of deaths globally, taking an estimated 17.9 million lives each year, which accounts for 31% of all deaths worlwide.
+Heart failure is a common event caused by CVDs and this dataset contains 12 features that can be used to predict mortality by heart failure. Most cardiovascular diseases can be prevented by addressing behavioural risk factors such as tobacco use, unhealthy diet and obesity, physical inactivity and harmful use of alcohol using population-wide strategies.
 People with cardiovascular disease or who are at high cardiovascular risk (due to the presence of one or more risk factors such as hypertension, diabetes, hyperlipidaemia or already established disease) need early detection and management wherein a machine learning model can be of great help.
- In particular, this project demonstrates the cleaning, preprocessing, and registering of an external dataset; automated machine learning; hyperparameter tuning using HyperDrive; the creation of machine learning pipelines and retrieval of its artefacts (models, transformers) and metrics; evaluation and comparison of two models; and the deployment of a trained model for use. This is a clear example of how machine learning can be applied in the Health field to help predict diseases that affect millions of people in order to predict these diseases in time and to save lives in some way. I hope this project can motivate other people to apply machine learning for the good of society.
+
+This project involves the loading and registering of this external data into Azure ML Workspace dataset, automated machine learning, hyperparameter tuning using HyperDrive,  comparison of two models and the deployment of best model. This is an effort to show how machine learning can be applied in the field of Medicine to help predict diseases that may affect millions of people.
  
 The dataset contains 299 training examples in a csv file.
 
- The link dawnload data from [kaggle](https://www.kaggle.com/andrewmvd/heart-failure-clinical-data) or   [archive.ics.uci.edu](https://archive.ics.uci.edu/ml/machine-learning-databases/00519/heart_failure_clinical_records_dataset.csv.)
+Source of data: [archive.ics.uci.edu](https://archive.ics.uci.edu/ml/machine-learning-databases/00519/heart_failure_clinical_records_dataset.csv)
 
 
 ## Architecture
