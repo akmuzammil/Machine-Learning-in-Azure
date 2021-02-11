@@ -2,14 +2,14 @@
 
 Machine learning is a critical business operation for many organizations. We learn how to configure machine learning pipelines in Azure, identify use cases for Automated Machine Learning, and use the Azure ML SDK to design, create, and manage machine learning pipelines in Azure.
 
-## - Project 1
+## Project 1
 
 #### Optimizing an ML Pipeline in Azure
 In this project, we create and optimize an ML pipeline. We are provided with a custom-coded model—a standard scikit-learn Logistic Regression. First part is to optimize the hyperparameters using HyperDrive. Second part of the project is to use AutoML to build and optimize a model on the same dataset, so that we can compare the results of the two methods.
 
 Project: [Optimizing an ML Pipeline in Azure](https://github.com/akmuzammil/Machine-Learning-in-Azure/tree/master/Project1-Optimizing-an-ML-Pipeline)
 
-## - Project 2
+## Project 2
 
 #### Machine Learning Operations
 
@@ -19,7 +19,7 @@ In this project, we perform Automated ML on bank marketing dataset, deploy the b
 
 Project: [Operationalizing Machine Learning in Microsoft Azure](https://github.com/akmuzammil/Machine-Learning-in-Azure/tree/master/Project2-Operationalizing-ML-in-Azure/starter_files)
 
-## - Capstone Project 
+## Capstone Project 
 
 Capstone - Azure Machine Learning Engineer
 
