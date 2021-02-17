@@ -50,17 +50,16 @@ Source of data: [archive.ics.uci.edu](https://archive.ics.uci.edu/ml/machine-lea
 
 
 ## Architecture
-First we have to choose a Dataset from an external resource like Kaggle, UCI, etc and import the dataset into the Azure ML Workspace. Then we have to train differents model using Automated ML and in the other experiment we have to train a model using Hyperdrive. After that we have to compare the performance of both best models and choose the best one in order to deploy it. Once deployed we have to test the model endpoint.
+
+The data is imported into dataset of the Azure ML Workspace. Then, we train using Automated ML (using Python SDK in Jupyter Notebook) and also using HyperDrive (using Python SDK in Jupyter Notebook). Results of both ways are compared to find the best model and deployed. The deployed model is available as RESTful webservice endpoint that can be tested by consuming by any client using REST API.
 
 ![architecture](./archdiagram.png)
-![architecture](./Shortcat/MLworkflow.png)
 
 ## Project Steps
 
-### Dataset
-In many areas with high poverty rates, there are hospitals with basic equipment. Patients are treated for very common ailments such as heart attacks, but many times doctors cannot help them due to lack of equipment. Thus this solution can help clinicians to predict in time whether a person is at risk of developing heart failure and thus provide treatment in a timely manner.
-That's why I chose the Kaggle Cardiovascular Disease Dataset. The Heart Failure Prediction Dataset is a Kaggle dataset that contains health history of some people. And a group of them had a Heart Failure Prediction. So using this dataset, we can train a model to predict whether a person might have a Heart Failure Prediction. This data comes from hospital records, but the original source is not available.
+### Import Data into Azure ML Dataset
 
+The dataset contains 12 features and 1 label (death_event feature - we use as the target, states if the patient died or survived before the end of the follow-up period, that was 130 days on average), which report clinical, body, and lifestyle information, that we briefly describe below. Some features are binary: anaemia, high blood pressure, diabetes, sex, and smoking. The hospital physician considered a patient having anaemia if haematocrit levels were lower than 36%. 
 
 12 clinical features:
 
@@ -77,72 +76,56 @@ That's why I chose the Kaggle Cardiovascular Disease Dataset. The Heart Failure 
 - smoking: if the patient smokes or not (boolean)
 - time: follow-up period (days)
 
-### Task
+In this project, we predict the death event or Heart failure using the 12 features in the dataset. The target ("DEATH_EVENT") column indicates that the patient died (value=0) or survived (value=1) before the end of the follow-up period.
 
-In this project, we will predict the death prediction or Heart failure rate with the help of 12 attributes provided in the dataset. The target ("DEATH_EVENT") column with values of 1 means person will suffer from heart failure and 0 means no heart failure.
+![dataset](./dataset.jpg)
 
-
-![dataset](./Shortcat/datset.PNG)
-
-To make predictions about heart failure, we used the open source Heart Failure Prediction dataset from kaggle to build a classification model. This dataset uses 12 clinical features for predicting death events by heart failure.
-
-![dataset](./Shortcat/Capture.PNG)
-![dataset](./Shortcat/Heartdata.PNG)
-![dataset](./Shortcat/Datasests.PNG)
 
 ### AutoML Model
 
-#### Pipeline
-As Data Scientists we know that before training a model, we have to do some process like feature engineering in order to get better models. So for that reason I decided to build a Pipeline with steps such as cleaning data, filtering, do some transformations and split the dataset into train and test sets. The last module correspond to the AutoML in order to train several kinds of models such as LightGBM, XGBoost, Logistic Regression, VotingEnsemble, among other algorithms.
+After we login into the Azure Portal, we launch the Azure Machine Learning Studio and begin the process of creating Automated ML Experiment using Python SDK. For this, we need to open the Jupyter Notebook from Azure ML Studio, load references and configure compute nodes, before preparing for the AutoML experiment. In our case, we select 'Standard_DS12_v2' VM with 1 as the minimum number of nodes and 4 as maximum. 
 
 #### AutoML Config
-This creates a general AutoML settings object.
-These inputs must match what was used when training in the portal. `label_column_name` has to be `DEATH_EVENT` for example.
-Namespace: azureml.train.automl.automlconfig.AutoMLConfig
+Before we run the AutoML experiment, we need to create and define AutoML configuration parameters. We may use AutoML settings object or directly pass the parameters into AutoML Config constrcutor.
 
-Use the AutoMLConfig class to configure parameters for automated machine learning training. Automated machine learning iterates over many combinations of machine learning algorithms and hyperparameter settings. It then finds the best-fit model based on your chosen accuracy metric. Configuration allows for specifying:
+![dataset](./automlconfig.jpg)
 
-I n this model we have used Automated ML to train and tune a model to perform a classification task. The main goal of the classification models 
+We use the AutoMLConfig class to configure parameters for AutoML experiment. We configure to run AutoML experiment to perform a classification task.
 
-- experiment_timeout_hours- which is set to 30 ,i.e, 18 minutes. experiment_timeout_hours is the maximum time in hours that all iterations combined can take before the experiment terminates
- - max_concurrent_iterations- is set to 5 and it represents the maximum number of iterations that would be executed in parallel. This value should be less than or equal to the maximum number of nodes as compute clusters support one interaction running per node.
- - primary_metric- is set to accuracy and this is the metric that Automated Machine Learning will optimize for model selection.
- - a validation_data or n_cross_validation parameter, automated ML applies default techniques to determine how validation is performed. This determination depends on the number of rows in the dataset assigned to your training_data parameter.
- - nable_early_stopping- is set to true. This enables early termination if the score is not improving in the short term.
- - "featurization": 'auto'	Indicates that as part of preprocessing, data guardrails and featurization steps are performed automatically. Default setting.
- - label_column_name- is set to label =""DEATH_EVENT"" The target ("DEATH_EVENT") column with values of 1 means person will suffer from heart failure and 0 means no heart failure.
-- The path is configured to project folder = './capstone-project3' and debug_log to automl_errors.log. Automl settings are also used in the configuration. I have used a custom environment saved as file conda_env.yml the savee in file inference.
-- task- task is set to classification as the aim of our model is to "DEATH_EVENT") column with values of 1 means person will suffer from heart failure and 0 means no heart failure.
-- compute_target-we have used remote compute target vm_size='STANDARD_DS3_V2', max_nodes=4)
-- training_data - I used all the data because the data contains 299 rows that do not need to be divided as a training and test group.
-- Explain model prediction by generating feature importance values for the entire model and/or individual datapoints.
+ - max_concurrent_iterations: is set to 5 and it represents the maximum number of iterations that would be executed in parallel. This value should be less than or equal to the maximum number of nodes as compute clusters support one interaction running per node.
+ - primary_metric: is set to accuracy and this is the metric that Automated Machine Learning will optimize for model selection.
+ - n_cross_validation: parameter specifies how many cross validations to perform when user validation data is not specified.
+ - enable_early_stopping- is set to true. This enables early termination if the score is not improving in the short term.
+ - featurization: 'auto'	indicates featurization step should be done automatically or not, or whether customized featurization should be used.
+ - label_column_name: the target ("DEATH_EVENT") column indicates that the patient died (value=0) or survived (value=1) before the end of the follow-up period.
+ - task: task is set to classification as the aim of our model is to classify "DEATH_EVENT" column.
+ - compute_target: remote compute target vm_size='STANDARD_DS3_V2', min_nodes=1, max_nodes=4
 
- ![automl](./Shortcat/CaptureA.PNG)
+#### Submit AutoML Experiment
 
-Then I created the AutoML step and I summitted the experiment. It took like 34:07 in order to run all the steps of the pipeline.
+AutoML Experiment object is created using the aforementioned AutoML configuration and submitted to execute on the remote target compute cluster.
 
-![automl](./Shortcat/ACapture.PNG)
-![automl](./Shortcat/ACapture1.PNG)
+![automl](./aml-run.JPG)
+
+AutoML iterates over many combinations of machine learning algorithms and hyperparameters. It then finds the best-fit model based on the chosen primary metric.
 
 #### RunDetails
-I used the RunDetails tool in order to get some information about the AutoML experiment. We can see I got some information of the model like the accuracy and the AUC and also the status and description of the experiment.
 
-![automl](./Shortcat/Capturea1.PNG)
-![automl](./Shortcat/Capturea2.PNG)
+Below is the screenshot of RunDetails widget that displays some information about the running AutoML experiment.
 
+![automl](./rundetails.JPG)
 
-#### Best Model
-After the experiment finished running we got different trained models, each one with its AUC metric. The best model was the VotingEnsemble with AUC=0.91359 and Accurcay = 0.87633. One advantege of the AutoML is that it also gives an explanation of the model. 
+#### Best AutoML Model
 
-![automl](./Shortcat/Capture3.PNG)
-![automl](./Shortcat/Capture4.PNG)
-![automl](./Shortcat/Capture6.PNG)
-![automl](./Shortcat/Capture16.PNG)
-![automl](./Shortcat/Capture17.PNG)
-![automl](./Shortcat/Capture18.PNG)
+Once the experiment successfully executes, we get the best AutoML model. In our case, VotingEnsemble is the best model with an accuracy of 0.87633.
 
-#### Saving Model
-Once I got the best model of the Atoml-pipline experiment, I saved the model in the pickle format. Also I tested the model using the test dataset in order to compare with the next model.
+![automl](./aml-completed.JPG)
+
+##### Best Run
+
+![automl](./aml-bestrun.JPG)
+
+The result model is saved by registering in the Azure ML Workspace.
 
 ### Model Deployment
 
@@ -173,6 +156,18 @@ We can consume the model endpoint using the HTTP API. First we have to specify t
 ![deployment](./Shortcat/Captureconsam.PNG)
 
 ### Hyperdrive Model
+To begin hyperparameter tuning using HyperDrive, we prepare a custom-coded model based on standard scikit-learn Logistic Regression. This custom python model uses logistic regression algorithm for classification and which will be used by HyperDrive to optimize the hyperparameters.
+
+#### Custom Python model based on scikit-learn's Logistic Regression
+
+##### Preparing Python Model used for Training - train.py:
+
+###### Import Data
+A custom python model is prepared that will be used for training. The model imports the data from the given dataset.
+```python
+# load the heart_failure_clinical_records_dataset
+ds= TabularDatasetFactory.from_delimited_files(path="https://archive.ics.uci.edu/ml/machine-learning-databases/00519/heart_failure_clinical_records_dataset.csv")
+```
 
 #### HyperDrive config
 In order to run a HyperDrive experiment we have to set up some previous details. First I passed the output of the previous step (heart_training.py) as input to the HyperDrive step. When reuse is allowed, results from the previous run are immediately sent to the next step. This is key when using pipelines in a collaborative environment since eliminating unnecessary reruns offers agility and save the script in experiment_folder('hyperdrive).
