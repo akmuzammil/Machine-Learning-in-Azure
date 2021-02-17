@@ -7,7 +7,7 @@ Table of Contents
   * [Overview](#overview)
   * [Architecture](#architecture)
   * [Project Steps](#project-steps)
-    + [Dataset](#dataset)
+    + [Dataset](#Import-Data-into-Azure-ML-Dataset)
       + [AutoML Model](#automl-model)
       - [Pipeline](#pipeline)
       - [AutoML Config](#automl-config)
