@@ -19,7 +19,7 @@ Table of Contents
      - [RunDetails](#rundetails-1)
      - [Best HyperDrive Model](#best-hyperdrive-model)
      - [Save and Register Model](#save-and-register-model)
-    + [Comparison of the two models: - AutoML Model vs HyperDrive Model](#comparison-of-the-two-models:-AutoML-Model-vs-HyperDrive-Model)
+    + [Comparison of the two models: AutoML Model vs HyperDrive Model](#comparison-of-the-two-models:-AutoML-Model-vs-HyperDrive-Model)
     + [Model Deployment](#model-deployment)
      - [Register Model](#register-model)
      - [Deploy Model](#deploy-model)
