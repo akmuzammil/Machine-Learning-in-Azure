@@ -7,26 +7,27 @@ Table of Contents
   * [Overview](#overview)
   * [Architecture](#architecture)
   * [Project Steps](#project-steps)
-    + [Dataset](#Import-Data-into-Azure-ML-Dataset)
-      + [AutoML Model](#automl-model)
-      - [Pipeline](#pipeline)
-      - [AutoML Config](#automl-config)
-      - [RunDetails](#rundetails)
-      - [Best Model](#best-model)
-      - [Saving Model](#saving-model)
-     + [Model Deployment](#model-deployment)
-       - [Register Model](#register-model)
-       - [Deploy Model](#deploy-model)
-       - [Consume Model Endpoint](#consume-model-endpoint)
+    + [Import Data into Azure ML Dataset](#Import-Data-into-Azure-ML-Dataset)
+    + [AutoML Model](#automl-model)
+     - [AutoML Configuration](#automl-configuration)
+     - [Submit AutoML Experiment](#Submit-AutoML-Experiment)
+     - [RunDetails](#rundetails)
+     - [Best AutoML Model](#Best-AutoML-Model)
     + [Hyperdrive Model](#hyperdrive-model)
-      - [HyperDrive config](#hyperdrive-config)
-      - [RunDetails](#rundetails-1)
-      - [Best Model](#best-model-1)
-      - [Save and Register Model](#save-and-register-model)
-    + [Comparison of the two models](#comparison-of-the-two-models)
-      - [Services cleanup](#services-cleanup)
+     - [Hyperparameter Tuning using HyperDrive](#Hyperparameter-Tuning-using-HyperDrive)
+     - [Submit the HyperDrive Run](#Submit-the-HyperDrive-Run)
+     - [RunDetails](#rundetails-1)
+     - [Best HyperDrive Model](#best-hyperdrive-model)
+     - [Save and Register Model](#save-and-register-model)
+    + [Comparison of the two models - AutoML Model vs HyperDrive Model](#comparison-of-the-two-models--AutoML-Model-vs-HyperDrive-Model)
+    + [Model Deployment](#model-deployment)
+     - [Register Model](#register-model)
+     - [Deploy Model](#deploy-model)
+     - [Consume Model Endpoint](#consume-model-endpoint)
+    + [Services Cleanup](#services-cleanup)
   * [Future Improvements](#future-improvements)
   * [Screen Recording](#screen-recording)
+  * [Acknowledgements](#Acknowledgements)
   
 This capstone project gives the opportunity to use the Azure Machine Learning knowledge that we have obtained so far to solve the problem of our interest. Our problem of interest is based on medical data to predict heart failure of given subject. This project has two parts - one to find best ML model and other to deploy the best model. Finding best ML model is further done in two ways: 
  
@@ -85,7 +86,8 @@ In this project, we predict the death event or Heart failure using the 12 featur
 
 After we login into the Azure Portal, we launch the Azure Machine Learning Studio and begin the process of creating Automated ML Experiment using Python SDK. For this, we need to open the Jupyter Notebook from Azure ML Studio, load references and configure compute nodes, before preparing for the AutoML experiment. In our case, we select 'Standard_DS12_v2' VM with 1 as the minimum number of nodes and 4 as maximum. 
 
-#### AutoML Config
+#### AutoML Configuration
+
 Before we run the AutoML experiment, we need to create and define AutoML configuration parameters. We may use AutoML settings object or directly pass the parameters into AutoML Config constrcutor.
 
 ![dataset](automlconfig.jpg)
@@ -331,7 +333,7 @@ Then we pass the input data in json format. The service receives the input data 
 ![deployment](aml-consume2.jpg)
 
 
-#### Services cleanup
+#### Services Cleanup
 
 After all the steps, we can delete the ACI service and also we can delete the Compute cluster in order to clean up services.
 
