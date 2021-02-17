@@ -168,14 +168,117 @@ A custom python model is prepared that will be used for training. The model impo
 # load the heart_failure_clinical_records_dataset
 ds= TabularDatasetFactory.from_delimited_files(path="https://archive.ics.uci.edu/ml/machine-learning-databases/00519/heart_failure_clinical_records_dataset.csv")
 ```
+###### Clean Data
+After the data is imported, the data is cleaned using the function clean_data where we first drop missing values.
+```python
+def clean_data(data):
+    
+    x_df = data.to_pandas_dataframe().dropna()
+    y_df = x_df.pop("DEATH_EVENT")
+    return x_df, y_df
 
-#### HyperDrive config
-In order to run a HyperDrive experiment we have to set up some previous details. First I passed the output of the previous step (heart_training.py) as input to the HyperDrive step. When reuse is allowed, results from the previous run are immediately sent to the next step. This is key when using pipelines in a collaborative environment since eliminating unnecessary reruns offers agility and save the script in experiment_folder('hyperdrive).
-There are many machine learning algorithms that require hyperparameters (parameter values that influence training, but can't be determined from the training data itself). For example, when training a logistic regression model, you can use a regularization rate hyperparameter to counteract bias in the model; or when training a convolutional neural network, you can use hyperparameters like learning rate and batch size to control how weights are adjusted and how many data items are processed in a mini-batch respectively. The choice of hyperparameter values can significantly affect the performance of a trained model, or the time taken to train it; and often you need to try multiple combinations to find the optimal solution. 
-In this case, you'll use a simple example of a logistic regression model with a three hyperparameter, but the principles apply to any kind of model you can train with Azure Machine Learning.
+x, y = clean_data(ds)
+```
+
+###### Split data into train and test sets.
+Then we split the data into train and test sets with 30% of the data used as test.
+```python
+# Split data into training set and test set
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.30, random_state=0)
+```
+###### Define Hyperparameters as Arguments for Logistic Regression
+```python
+# Set regularization parameter
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--C', type=float, default=1.0, help="Inverse of regularization strength. Smaller values cause stronger regularization")
+parser.add_argument('--max_iter', type=int, default=100, help="Maximum number of iterations to converge")
+parser.add_argument('--regularization', type=float, dest='reg_rate', default=0.01, help='regularization rate')
+args = parser.parse_args()
+```
+###### Logistic Regression
+The classification technique used is the Logistic Regression.
+```python
+# Train a logistic regression model
+print('Training a logistic regression model with regularization rate of', reg)
+run.log('Regularization Rate',  np.float(reg))
+run.log("Regularization Strength:", np.float(args.C))
+run.log("Max iterations:", np.int(args.max_iter))
+model = LogisticRegression(C=args.C,max_iter=args.max_iter, solver="liblinear").fit(x_train, y_train)
+```
+We then fit the model and score against the test set to find the accuracy of the model.
+```python
+ calculate accuracy
+y_sc = model.predict(x_test)
+acc = np.average(y_sc == y_test)
+print('Accuracy:', acc)
+run.log('Accuracy', np.float(acc))
+
+# calculate AUC
+y_scores = model.predict_proba(x_test)
+auc = roc_auc_score(y_test,y_scores[:,1])
+print('AUC: ' + str(auc))
+run.log('AUC', np.float(auc))
+```
+
+The model is ready and saved as train.py.
+
+
+#### Hyperparameter Tuning using HyperDrive
+
+Once the python model (train.py) is ready, we start our exercise, first, by using HyperDrive to tune the hyperparameters to achieve higher accuracy metric. We open Jupyter Notebook, and prepare the hyperparameter configuration before executing hyperdrive experiment.
 Azure Machine Learning includes a hyperparameter tuning capability through Hyperdrive experiments. These experiments launch multiple child runs, each with a different hyperparameter combination. The run producing the best model (as determined by the logged target performance metric for which you want to optimize) can be identified, and its trained model selected for registration and deployment.
+##### Hyperparameters
+Hyperparameters are adjustable parameters that let us control the model training process. For example, with random forest, we decide the number of estimators (decision trees) and the depth of each tree. Model performance depends heavily on hyperparameters.
 
-![hyperdrive](./Shortcat/Capture10.PNG)
+Hyperparameter tuning, also called hyperparameter optimization, is the process of finding the configuration of hyperparameters that results in the best performance. The process is typically computationally expensive and manual. HyperDrive lets us automate hyperparameter tuning and run experiments in parallel to efficiently optimize hyperparameters.
+
+![hyperdrive](hd-hyperparameters.jpg)
+
+In this section, we tuned the Regularization Strength (C), Regularization Rate (regularization) and the Max Iterations (max_Iter) with the Hyperdrive method. We have used the random parameter sampler for parameter sampling.
+```python
+# Sample a range of parameter values
+param_sampling = RandomParameterSampling({
+    "--C" : uniform(0.1,1),
+    "--max_iter" : choice(50,100,150,200),
+    "--regularization": choice(0.001, 0.005, 0.01, 0.05, 0.1, 1.0)
+    }
+)
+```
+Note the the lower values of C cause stronger regularization. And max_iter specifies the maximum number of iterations for the model to converge. The benefits of the chosen parameters sample are to reduce the computational costs and speed up the results reducing the max_iter for example.
+
+###### Early Termination Policy - Bandit
+
+Bandit is an early termination policy based on slack factor/slack amount and evaluation interval. The policy early terminates any runs where the primary metric is not within the specified slack factor/slack amount with respect to the best performing training run. The Bandit policy takes the following configuration parameters:
+
+*slack_factor or slack_amount*: The slack allowed with respect to the best performing training run. slack_factor specifies the allowable slack as a ration. slack_amount specifies the allowable slack as an absolute amount, instead of a ratio.
+
+evaluation_interval: Optional. The frequency for applying the policy. Each time the training script logs the primary metric counts as one interval.
+
+delay_evaluation: Optional. The number of intervals to delay the policy evaluation. We may use this parameter to avoid premature termination of training runs. If specified, the policy applies every multiple of evaluation_interval that is greater than or equal to delay_evaluation.
+
+bpolicy =  BanditPolicy(slack_factor = 0.1, evaluation_interval=1)
+Any run that doesn't fall within the slack factor or slack amount of the evaluation metric with respect to the best performing run will be terminated.
+
+Create a HyperDriveConfig using the estimator, hyperparameter sampler, and policy.
+Prepare the HyperDrive Configuration to start the hyperdrive run. It consists of hyperparameters, defining the parameter search space, specifying a primary metric to optimize, specifying early termination policy for low-performing runs, etc.
+
+We specify the primary metric that the hyperparameter tuning optimizes. Each training run is evaluated for the primary metric. The early termination policy uses the primary metric to identify low-performance runs.
+
+primary_metric_name: The name of the primary metric needs to exactly match the name of the metric logged by the training script
+primary_metric_goal: It can be either PrimaryMetricGoal.MAXIMIZE or PrimaryMetricGoal.MINIMIZE and determines whether the primary metric will be maximized or minimized when evaluating the runs.
+Below configuration is to maximize 'accuracy'.
+
+hd_config = HyperDriveConfig(estimator=est,
+                             hyperparameter_sampling=ps,
+                             policy=bpolicy,
+                             primary_metric_name="accuracy",
+                             primary_metric_goal=PrimaryMetricGoal.MAXIMIZE,
+                             max_total_runs=80,
+                             max_concurrent_runs=4)
+Submit the HyperDrive Run
+Run the experiment to execute the HyperDrive.
+
 
 #### RunDetails
 I used the RunDetails tool in order to get some information about the HyperDrive experiment. We can see a graphic of the AUC metric versus the runs and also the map of the hyperparameters.
