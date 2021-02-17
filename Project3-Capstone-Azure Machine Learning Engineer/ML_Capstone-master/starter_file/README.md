@@ -19,7 +19,7 @@ Table of Contents
      - [RunDetails](#rundetails-1)
      - [Best HyperDrive Model](#best-hyperdrive-model)
      - [Save and Register Model](#save-and-register-model)
-    + [Comparison of the two models: AutoML Model vs HyperDrive Model](#comparison-of-the-two-models:-AutoML-Model-vs-HyperDrive-Model)
+    + [Comparison of the two models AutoML Model vs HyperDrive Model](#comparison-of-the-two-models-AutoML-Model-vs-HyperDrive-Model)
     + [Model Deployment](#model-deployment)
      - [Register Model](#register-model)
      - [Deploy Model](#deploy-model)
@@ -288,7 +288,7 @@ Best Run Id:  HD_22c8c5be-dad4-4437-951f-6ffcbcb15b5a_8
 
 ![hyperdrive](hd-save.jpg)
 
-### Comparison of the two models: AutoML Model vs HyperDrive Model
+### Comparison of the two models AutoML Model vs HyperDrive Model
 
 Below is the comparison between the two models' performance.
 - The HyperDrive experiment focuses on only one type of algorithm and tries to find the best hyperparameters.
