@@ -53,7 +53,7 @@ Source of data: [archive.ics.uci.edu](https://archive.ics.uci.edu/ml/machine-lea
 
 The data is imported into dataset of the Azure ML Workspace. Then, we train using Automated ML (using Python SDK in Jupyter Notebook) and also using HyperDrive (using Python SDK in Jupyter Notebook). Results of both ways are compared to find the best model and deployed. The deployed model is available as RESTful webservice endpoint that can be tested by consuming by any client using REST API.
 
-![architecture](./archdiagram.png)
+![architecture](archdiagram.png)
 
 ## Project Steps
 
@@ -78,7 +78,7 @@ The dataset contains 12 features and 1 label (death_event feature - we use as th
 
 In this project, we predict the death event or Heart failure using the 12 features in the dataset. The target ("DEATH_EVENT") column indicates that the patient died (value=0) or survived (value=1) before the end of the follow-up period.
 
-![dataset](./dataset.jpg)
+![dataset](dataset.jpg)
 
 
 ### AutoML Model
@@ -88,7 +88,7 @@ After we login into the Azure Portal, we launch the Azure Machine Learning Studi
 #### AutoML Config
 Before we run the AutoML experiment, we need to create and define AutoML configuration parameters. We may use AutoML settings object or directly pass the parameters into AutoML Config constrcutor.
 
-![dataset](./automlconfig.jpg)
+![dataset](automlconfig.jpg)
 
 We use the AutoMLConfig class to configure parameters for AutoML experiment. We configure to run AutoML experiment to perform a classification task.
 
@@ -105,7 +105,7 @@ We use the AutoMLConfig class to configure parameters for AutoML experiment. We 
 
 AutoML Experiment object is created using the aforementioned AutoML configuration and submitted to execute on the remote target compute cluster.
 
-![automl](./aml-run.JPG)
+![automl](aml-run.jpg)
 
 AutoML iterates over many combinations of machine learning algorithms and hyperparameters. It then finds the best-fit model based on the chosen primary metric.
 
@@ -113,17 +113,17 @@ AutoML iterates over many combinations of machine learning algorithms and hyperp
 
 Below is the screenshot of RunDetails widget that displays some information about the running AutoML experiment.
 
-![automl](./rundetails.JPG)
+![automl](rundetails.jpg)
 
 #### Best AutoML Model
 
 Once the experiment successfully executes, we get the best AutoML model. In our case, VotingEnsemble is the best model with an accuracy of 0.87633.
 
-![automl](./aml-completed.JPG)
+![automl](aml-completed.jpg)
 
 ##### Best Run
 
-![automl](./aml-bestrun.JPG)
+![automl](aml-bestrun.jpg)
 
 The result model is saved by registering in the Azure ML Workspace.
 
