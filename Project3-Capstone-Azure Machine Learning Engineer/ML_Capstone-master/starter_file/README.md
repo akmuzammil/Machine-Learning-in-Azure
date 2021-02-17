@@ -127,34 +127,6 @@ Once the experiment successfully executes, we get the best AutoML model. In our 
 
 The result model is saved by registering in the Azure ML Workspace.
 
-### Model Deployment
-
-#### Register Model 
-The first step in order to deploy a model is register it. I used the register_model method from the best_run of the Atoml-pipline experiment. Then we can see that the model is registered.
-![deployment](./Shortcat/Capturesavemodel.PNG)
-![deployment](./Shortcat/Captureregstranddoply.PNG)
-
-
-#### Deploy Model
-Beafore deploy the model, we have to create the scoring file and the environment file. Then we have to set up the parameters for the Azure Container Instance and then we can deploy the model and the deployment process take some minutes, then we can see the information of the model deployed like the REST endpoint and the authentication keys.
-
-![deployment](./Shortcat/Capture7.PNG)
-![deployment](./Shortcat/Capture8.PNG)
-
-Published pipline overview
-
-![deployment](./Shortcat/Capture12.PNG)
-
-Application insights of Automl service
-
-![deployment](./Shortcat/Captureinsigth.PNG)
-
-
-#### Consume Model Endpoint
-We can consume the model endpoint using the HTTP API. First we have to specify the model endpoint and the primary key for authentication. Then we have to provide the data to predict in json format. With this information we can make a request for the endpoint and it will return the predictions.
-
-![deployment](./Shortcat/Captureconsam.PNG)
-
 ### Hyperdrive Model
 To begin hyperparameter tuning using HyperDrive, we prepare a custom-coded model based on standard scikit-learn Logistic Regression. This custom python model uses logistic regression algorithm for classification and which will be used by HyperDrive to optimize the hyperparameters.
 
@@ -251,86 +223,132 @@ Note the the lower values of C cause stronger regularization. And max_iter speci
 
 Bandit is an early termination policy based on slack factor/slack amount and evaluation interval. The policy early terminates any runs where the primary metric is not within the specified slack factor/slack amount with respect to the best performing training run. The Bandit policy takes the following configuration parameters:
 
-*slack_factor or slack_amount*: The slack allowed with respect to the best performing training run. slack_factor specifies the allowable slack as a ration. slack_amount specifies the allowable slack as an absolute amount, instead of a ratio.
+**slack_factor or slack_amount**: The slack allowed with respect to the best performing training run. slack_factor specifies the allowable slack as a ration. slack_amount specifies the allowable slack as an absolute amount, instead of a ratio.
 
-evaluation_interval: Optional. The frequency for applying the policy. Each time the training script logs the primary metric counts as one interval.
+**evaluation_interval**: Optional. The frequency for applying the policy. Each time the training script logs the primary metric counts as one interval.
 
-delay_evaluation: Optional. The number of intervals to delay the policy evaluation. We may use this parameter to avoid premature termination of training runs. If specified, the policy applies every multiple of evaluation_interval that is greater than or equal to delay_evaluation.
-
-bpolicy =  BanditPolicy(slack_factor = 0.1, evaluation_interval=1)
+**delay_evaluation**: Optional. The number of intervals to delay the policy evaluation. We may use this parameter to avoid premature termination of training runs. If specified, the policy applies every multiple of evaluation_interval that is greater than or equal to delay_evaluation.
+```python
+early_termination_policy = BanditPolicy(evaluation_interval=2, slack_factor=0.1)
+```
 Any run that doesn't fall within the slack factor or slack amount of the evaluation metric with respect to the best performing run will be terminated.
 
-Create a HyperDriveConfig using the estimator, hyperparameter sampler, and policy.
+###### Create a HyperDriveConfig using the estimator, hyperparameter sampler, and policy.
 Prepare the HyperDrive Configuration to start the hyperdrive run. It consists of hyperparameters, defining the parameter search space, specifying a primary metric to optimize, specifying early termination policy for low-performing runs, etc.
 
 We specify the primary metric that the hyperparameter tuning optimizes. Each training run is evaluated for the primary metric. The early termination policy uses the primary metric to identify low-performance runs.
 
-primary_metric_name: The name of the primary metric needs to exactly match the name of the metric logged by the training script
-primary_metric_goal: It can be either PrimaryMetricGoal.MAXIMIZE or PrimaryMetricGoal.MINIMIZE and determines whether the primary metric will be maximized or minimized when evaluating the runs.
-Below configuration is to maximize 'accuracy'.
+- primary_metric_name: The name of the primary metric needs to exactly match the name of the metric logged by the training script
+- primary_metric_goal: It can be either PrimaryMetricGoal.MAXIMIZE or PrimaryMetricGoal.MINIMIZE and determines whether the primary metric will be maximized or minimized when evaluating the runs.
+Below configuration is to maximize 'AUC' (area under the curve).
+```python
+# Create your estimator and hyperdrive config
+estimator = SKLearn(source_directory=".",
+                          inputs=[dataset.as_named_input('heartfailure')], # Pass the dataset as an input...
+                          entry_script='train.py',
+                          compute_target = cpu_cluster)
 
-hd_config = HyperDriveConfig(estimator=est,
-                             hyperparameter_sampling=ps,
-                             policy=bpolicy,
-                             primary_metric_name="accuracy",
-                             primary_metric_goal=PrimaryMetricGoal.MAXIMIZE,
-                             max_total_runs=80,
-                             max_concurrent_runs=4)
-Submit the HyperDrive Run
+# Configure hyperdrive settings
+hyperdrive_run_config = HyperDriveConfig(estimator=estimator, 
+                          hyperparameter_sampling=param_sampling, 
+                          policy=early_termination_policy, 
+                          primary_metric_name='AUC', 
+                          primary_metric_goal=PrimaryMetricGoal.MAXIMIZE, 
+                          max_total_runs=40,
+                          max_concurrent_runs=4)
+```
+#### Submit the HyperDrive Run
 Run the experiment to execute the HyperDrive.
-
+```python
+# Submit your experiment
+run = experiment.submit(config=hyperdrive_run_config, show_output=True)
+```
 
 #### RunDetails
-I used the RunDetails tool in order to get some information about the HyperDrive experiment. We can see a graphic of the AUC metric versus the runs and also the map of the hyperparameters.
+We use RunDetails widget to get information about the running HyperDrive experiment.
 
-![hyperdrive](./Shortcat/Capture11.PNG)
-![hyperdrive](./Shortcat/Capture9h.PNG)
+![hyperdrive](hd-rundetails.jpg)
 
-#### Best Model
-Once the HyperDrive experiment finished running we got different trained models, each one with its AUC metric and its hyperparameters. 
-with Best Run Id:  HD_93501b78-a2ca-4df3-9184-1a1ba57dd388_0
- -AUC: 0.8237327188940091
- -Accuracy: 0.8222222222222222
- -Regularization Rate: ['--C', '0.9939177083701627', '--max_iter', '150', '--regularization', '0.05'] .
 
-We can see the best model in the Azure ML Studio with its metrics and hyperparameters obtained.
+![hyperdrive](hd-runcomplte.jpg)
 
-![hyperdrive](./Shortcat/Captureh3.PNG)
+#### Best HyperDrive Model
+Once the HyperDrive experiment finished running we get the best models, with its AUC metric and its hyperparameters as shown below. 
 
+```python
+Best Run Id:  HD_22c8c5be-dad4-4437-951f-6ffcbcb15b5a_8
+ -AUC: 0.8410138248847926
+ -Accuracy: 0.7888888888888889
+ -Regularization Rate: ['--C', '0.30848904476653083', '--max_iter', '100', '--regularization', '0.005']
+```
 
 #### Save and Register Model
-Once I got the best model of the AutoML experiment, I saved the model in the pickle format. Also I tested the model using the test dataset in order to compare with other models. Then I registered the model using the register_model method from the HyperDrive run.
-![hyperdrive](./Shortcat/Capturehdsave.PNG)
-![hyperdrive](./Shortcat/Captureh2.PNG)
-![hyperdrive](./Shortcat/Captureh4.PNG)
-![hyperdrive](./Shortcat/CaptureHmodel.PNG)
 
+![hyperdrive](hd-save.jpg)
 
-### Comparison of the two models
-In both experiments, I used the accuracy scale and the American University in Cairo for comparison.
+### Comparison of the two models - AutoML Model vs HyperDrive Model
+
+Below is the comparison between the two models' performance.
 - The HyperDrive experiment focuses on only one type of algorithm and tries to find the best hyperparameters.
-- The focus of AutoML differs from different algorithms until you get the best suitable algorithm for the data and produce the best model. Training we can publish the best model.
+- Whereas the AutoML tries different algorithms and parameters to find the best suitable algorithm for the data and produce the best model. 
 
-![comparison](./Shortcat/Capturecompermodl.PNG)
+Metric | HyperDrive | AutoML
+------------ | ------------ | -------------
+Accuracy | 0.7888888888888889 | 0.87633
+Model | Logistic Regression | Voting Ensemble
+
+### Model Deployment
+
+Based on the comparison above, we found that the AutoML model is best model in terms of accuracy and performance. Therefore, we select this best model for deployment.
+
+#### Register Model 
+
+Before we start deploying the model, we register it in the Azure ML Workspace, by running below code statement. 
+
+![deployment](aml-save.jpg)
+
+
+#### Deploy Model
+
+We will deploy the model using Azure Container Instance (ACI). For this, we need inference configuration setting and inference score python script. And then, we run the deploy command.
+
+![deployment](aml-aci.jpg)
+
+##### Deployed Model as Service
+
+![deployment](aml-deployed-aci.jpg)
+
+![deployment](aml-deployed-aci2.jpg)
+
+
+#### Consume Model Endpoint
+We consume the model endpoint using the HTTP REST API. For this we need the model endpoint URL and the primary key for authentication, as shown below. 
+
+![deployment](aml-consume.jpg)
+
+Then we pass the input data in json format. The service receives the input data and it will return the predictions.
+
+![deployment](aml-consume2.jpg)
+
 
 #### Services cleanup
-After all the steps, we can delete the ACI service and also we can delete the Compute cluster from its associated workspace in order to clean up services.
 
-![deletcop](./Shortcat/Deletcluster.PNG)
+After all the steps, we can delete the ACI service and also we can delete the Compute cluster in order to clean up services.
+
+![deletcop](clean.jpg)
 
 ## Future Improvements
--  I built a HyperDrive step Pipeline with steps such as cleaning data, filtering, do some transformations and split the dataset into train and test sets in order to do some feature engineering and help to get better models. 
--Feature engineering can be performed
-- Different feature reduction techniques could be used like PCA, RFE
-- Using Cross validation techniques would help in cribbing problems like overfitting
-- Th model can be converted to ONXX format and be deployed on Edge services.
+
+- The model can be converted to ONXX format and be deployed and consumed on Edge devices.
+- More complex techniques such as deep learning/neural networks can be employed to study the performance.
 
 
 ## Screen Recording
 
-Provide a link to a screen recording of the Capstone Project in action. [Link](https://drive.google.com/file/d/1qtM8zfoJqRLEoU5M96Ot8S0wXlTIKJf0/view?usp=sharing) -> 5 mintes
+[Automated ML vs HyperDrive Tuning](https://www.youtube.com/watch?v=e_GZGGjGeK8)
 
-Provide a link to a screen recording of the Capstone Project in action. [Link](https://drive.google.com/file/d/1auJXAn2Ptf3zimwOi9bc2BUuWtngAc45/view?usp=sharing) 10 mintes
 
-## Acknowledgement
-I would like to thank Udacity for the course work and Microsoft for providing this opportunity. I have used dataset from Kaggle and would like to thank them for providing it. Resources used to complete the project are Kaggle, Udacity course work, scikit learn documentation and microsoft azure documentation.
+## Acknowledgements
+1. Microsoft
+2. Udacity
+3. UCI
