@@ -81,6 +81,15 @@ In this project, we predict the death event or Heart failure using the 12 featur
 
 ![dataset](dataset.jpg)
 
+#### Data Loading Mechanism
+The data can be loaded into Azure ML Workspace in couple of ways. One way is to download the data from UCI ML Repository and manually import into the Azure ML Workspace Dataset. Another way is to programmatically read using the python code block.
+
+##### Manual in Azure ML Studio
+- Method 1: Click on create dataset and import the data from local files once the data is downloaded from UCI ML Repository link, as shown below.
+![dataset](datasetload.png)
+
+- Method 2: Programmatically read the data using HTTP url by python code, as shown below.
+![dataset](datasetload2.jpg)
 
 ### AutoML Model
 
@@ -124,6 +133,7 @@ Once the experiment successfully executes, we get the best AutoML model. In our 
 ![automl](aml-completed.jpg)
 
 ##### Best Run
+Below is the best run out of multiple runs that AutoML executed.
 
 ![automl](aml-bestrun.jpg)
 
@@ -285,7 +295,7 @@ Best Run Id:  HD_22c8c5be-dad4-4437-951f-6ffcbcb15b5a_8
 ```
 
 #### Save and Register Model
-
+Below shows how to save and register the model for further use later (to deploy or share etc).
 ![hyperdrive](hd-save.jpg)
 
 ### Comparison of the two models AutoML Model vs HyperDrive Model
@@ -318,6 +328,7 @@ We will deploy the model using Azure Container Instance (ACI). For this, we need
 
 ##### Deployed Model as Service
 
+The model is deployed as a web service as shown below. It can be conveniently accessed via HTTP REST API by any client application.
 ![deployment](aml-deployed-aci.jpg)
 
 ![deployment](aml-deployed-aci2.jpg)
