@@ -358,7 +358,7 @@ After all the steps, we can delete the ACI service and also we can delete the Co
 
 ## Screen Recording
 
-[Automated ML vs HyperDrive Tuning](https://www.youtube.com/watch?v=e_GZGGjGeK8)
+[Automated ML vs HyperDrive Tuning](https://www.youtube.com/watch?v=7uIQp8DrO5M)
 
 
 ## Acknowledgements
